@@ -18,7 +18,7 @@ CLI ini klien publik dari server PTB. Semua data dan perhitungan ada di server; 
 | Sistem | Perintah |
 |---|---|
 | macOS / Linux (Homebrew) | `brew install ealfarozi/tap/ptb` |
-| Windows (WinGet) | `winget install ealfarozi.ptb` |
+| Windows | unduh `ptb_…_windows_amd64.zip` dari [Releases](https://github.com/ealfarozi/ptb-cli/releases/latest) (WinGet menyusul) |
 | Manual | unduh dari [Releases](https://github.com/ealfarozi/ptb-cli/releases), cocokkan `checksums.txt` |
 
 Verifikasi tanda tangan rilis (opsional, butuh [cosign](https://docs.sigstore.dev/)):
