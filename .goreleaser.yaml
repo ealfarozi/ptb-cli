@@ -1,0 +1,101 @@
+# GoReleaser v2 — release of the ptb CLI. Run by .github/workflows/release.yml on a v* tag.
+version: 2
+project_name: ptb
+
+before:
+  hooks:
+    - go mod tidy
+    - go test ./...
+
+builds:
+  - id: ptb
+    main: .
+    binary: ptb
+    env: [CGO_ENABLED=0]
+    goos: [darwin, linux, windows]
+    goarch: [amd64, arm64]
+    flags: [-trimpath]
+    ldflags:
+      - -s -w
+      - -X github.com/ealfarozi/ptb-cli/internal/version.Version={{ .Version }}
+      - -X github.com/ealfarozi/ptb-cli/internal/version.Commit={{ .ShortCommit }}
+      - -X github.com/ealfarozi/ptb-cli/internal/version.Date={{ .CommitDate }}
+      - -X github.com/ealfarozi/ptb-cli/internal/version.Channel={{ if .Prerelease }}beta{{ else }}stable{{ end }}
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+archives:
+  - id: ptb
+    formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    name_template: "ptb_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files: [LICENSE, README.md]
+
+checksum:
+  name_template: checksums.txt
+
+# Keyless signing of the checksum file with Sigstore (GitHub OIDC, no secret).
+signs:
+  - cmd: cosign
+    artifacts: checksum
+    signature: "${artifact}.sig"
+    certificate: "${artifact}.pem"
+    args: ["sign-blob", "--yes", "--output-signature=${signature}", "--output-certificate=${certificate}", "${artifact}"]
+
+sboms:
+  - artifacts: archive
+
+changelog:
+  use: github
+  sort: asc
+  filters:
+    exclude: ["^docs:", "^test:", "^chore:"]
+
+release:
+  github:
+    owner: ealfarozi
+    name: ptb-cli
+  prerelease: auto
+
+# Homebrew: brew install ealfarozi/tap/ptb (needs repo ealfarozi/homebrew-tap
+# and secret HOMEBREW_TAP_GITHUB_TOKEN).
+brews:
+  - name: ptb
+    repository:
+      owner: ealfarozi
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    directory: Formula
+    homepage: https://papertobillion.com/help?feature=ai-mcp
+    description: PaperToBillion CLI — data saham BEI dari PTB di terminal
+    license: Apache-2.0
+    skip_upload: "{{ if .Env.HOMEBREW_TAP_GITHUB_TOKEN }}false{{ else }}true{{ end }}"
+    test: |
+      system "#{bin}/ptb", "version"
+    install: |
+      bin.install "ptb"
+      generate_completions_from_executable(bin/"ptb", "completion")
+
+# WinGet: winget install ealfarozi.ptb (opens a PR on microsoft/winget-pkgs from
+# a fork; needs secret WINGET_GITHUB_TOKEN). Skipped for prereleases.
+winget:
+  - name: ptb
+    publisher: ealfarozi
+    package_identifier: ealfarozi.ptb
+    short_description: PaperToBillion CLI — data saham BEI dari PTB di terminal
+    license: Apache-2.0
+    homepage: https://papertobillion.com
+    publisher_url: https://github.com/ealfarozi
+    skip_upload: "{{ if and .Env.WINGET_GITHUB_TOKEN (not .Prerelease) }}false{{ else }}true{{ end }}"
+    repository:
+      owner: ealfarozi
+      name: winget-pkgs
+      branch: "ptb-{{ .Version }}"
+      token: "{{ .Env.WINGET_GITHUB_TOKEN }}"
+      pull_request:
+        enabled: true
+        base:
+          owner: microsoft
+          name: winget-pkgs
+          branch: master
