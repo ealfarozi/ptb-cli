@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.1.3 — 2026-11-25
+- Distribusi WinGet: manifest `ealfarozi.ptb` diajukan otomatis ke microsoft/winget-pkgs.
+
 ## v0.1.2 — 2026-11-25
 - `ptb update` mengenali pemasangan lewat Scoop dan Docker.
 - Formula Homebrew dan manifest Scoop kini diperbarui otomatis oleh rilis.
