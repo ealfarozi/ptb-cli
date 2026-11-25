@@ -77,6 +77,38 @@ brews:
       bin.install "ptb"
       generate_completions_from_executable(bin/"ptb", "completion")
 
+# Scoop: scoop bucket add ealfarozi https://github.com/ealfarozi/scoop-bucket
+#        scoop install ptb   (same token as Homebrew, optional)
+scoops:
+  - name: ptb
+    repository:
+      owner: ealfarozi
+      name: scoop-bucket
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    directory: bucket
+    homepage: https://papertobillion.com/help?feature=ai-mcp
+    description: PaperToBillion CLI — data saham BEI dari PTB di terminal
+    license: Apache-2.0
+    skip_upload: "{{ if .Env.HOMEBREW_TAP_GITHUB_TOKEN }}false{{ else }}true{{ end }}"
+
+# Docker: ghcr.io/ealfarozi/ptb (linux/amd64 + linux/arm64), pushed with the
+# workflow's GITHUB_TOKEN.
+dockers_v2:
+  - id: ptb
+    ids: [ptb]
+    images: ["ghcr.io/ealfarozi/ptb"]
+    tags:
+      - "{{ .Version }}"
+      - "{{ if not .Prerelease }}latest{{ end }}"
+    platforms: [linux/amd64, linux/arm64]
+    labels:
+      org.opencontainers.image.title: ptb
+      org.opencontainers.image.description: PaperToBillion CLI
+      org.opencontainers.image.source: https://github.com/ealfarozi/ptb-cli
+      org.opencontainers.image.version: "{{ .Version }}"
+      org.opencontainers.image.revision: "{{ .FullCommit }}"
+      org.opencontainers.image.licenses: Apache-2.0
+
 # WinGet: winget install ealfarozi.ptb (opens a PR on microsoft/winget-pkgs from
 # a fork; needs secret WINGET_GITHUB_TOKEN). Skipped for prereleases.
 winget:
