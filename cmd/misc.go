@@ -156,10 +156,19 @@ func installMethod() string {
 	switch {
 	case strings.Contains(exe, "/Cellar/") || strings.Contains(exe, "/homebrew/") || strings.Contains(exe, "linuxbrew"):
 		return "brew upgrade ptb"
+	case strings.Contains(strings.ToLower(exe), `\scoop\`) || strings.Contains(strings.ToLower(exe), "/scoop/"):
+		return "scoop update ptb"
 	case strings.Contains(strings.ToLower(exe), "winget"):
 		return "winget upgrade ealfarozi.ptb"
+	case exe == "/usr/bin/ptb" && fileExists("/.dockerenv"):
+		return "docker pull ghcr.io/ealfarozi/ptb:latest"
 	}
 	return "unduh rilis terbaru dari https://github.com/" + repoSlug + "/releases/latest"
+}
+
+func fileExists(p string) bool {
+	_, err := os.Stat(p)
+	return err == nil
 }
 
 func runUpdateCheck(cmd *cobra.Command, args []string) error {
