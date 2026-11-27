@@ -156,8 +156,29 @@ func (c *Client) Get(ctx context.Context, path string, q url.Values, o Options) 
 	return nil, lastErr
 }
 
+// Send calls a mutating route (POST/PUT/DELETE) with a JSON body. It is not
+// retried: callers confirm with the member before changing data.
+func (c *Client) Send(ctx context.Context, method, path string, q url.Values, body []byte) (*Response, error) {
+	u := c.Base + path
+	if enc := q.Encode(); enc != "" {
+		u += "?" + enc
+	}
+	return c.doMethod(ctx, method, u, body, Options{})
+}
+
 func (c *Client) do(ctx context.Context, u string, o Options) (*Response, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
+	return c.doMethod(ctx, http.MethodGet, u, nil, o)
+}
+
+func (c *Client) doMethod(ctx context.Context, method, u string, body []byte, o Options) (*Response, error) {
+	var rd io.Reader
+	if body != nil {
+		rd = strings.NewReader(string(body))
+	}
+	req, err := http.NewRequestWithContext(ctx, method, u, rd)
+	if body != nil && err == nil {
+		req.Header.Set("Content-Type", "application/json")
+	}
 	if err != nil {
 		return nil, &Error{Code: "INVALID_ARGUMENT", Message: err.Error()}
 	}
@@ -177,7 +198,7 @@ func (c *Client) do(ctx context.Context, u string, o Options) (*Response, error)
 		return nil, &Error{Code: "NETWORK", Message: msg}
 	}
 	defer res.Body.Close()
-	body, err := io.ReadAll(io.LimitReader(res.Body, 64<<20))
+	raw, err := io.ReadAll(io.LimitReader(res.Body, 64<<20))
 	if err != nil {
 		return nil, &Error{Code: "NETWORK", Message: err.Error()}
 	}
@@ -187,7 +208,7 @@ func (c *Client) do(ctx context.Context, u string, o Options) (*Response, error)
 		Error   json.RawMessage `json:"error"`
 		Message string          `json:"message"`
 	}
-	_ = json.Unmarshal(body, &env)
+	_ = json.Unmarshal(raw, &env)
 	if res.StatusCode >= 400 || (env.Success != nil && !*env.Success) {
 		e := &Error{Status: res.StatusCode}
 		var obj struct{ Code, Message string }
@@ -215,7 +236,7 @@ func (c *Client) do(ctx context.Context, u string, o Options) (*Response, error)
 	}
 	data := env.Data
 	if len(data) == 0 {
-		data = body
+		data = raw
 	}
 	return &Response{Data: data, Replayed: res.Header.Get("Idempotent-Replayed") == "true"}, nil
 }

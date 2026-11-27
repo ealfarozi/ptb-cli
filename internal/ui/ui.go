@@ -76,17 +76,17 @@ func paint(code, s string) string {
 	return code + s + reset
 }
 
-func Bold(s string) string   { return paint(bold, s) }
-func Dim(s string) string    { return paint(dim, s) }
-func Brand(s string) string  { return paint(violet, s) }
-func Info(s string) string   { return paint(cyan, s) }
-func Good(s string) string   { return paint(green, s) }
-func Bad(s string) string    { return paint(red, s) }
-func Warn(s string) string   { return paint(yellow, s) }
+func Bold(s string) string  { return paint(bold, s) }
+func Dim(s string) string   { return paint(dim, s) }
+func Brand(s string) string { return paint(violet, s) }
+func Info(s string) string  { return paint(cyan, s) }
+func Good(s string) string  { return paint(green, s) }
+func Bad(s string) string   { return paint(red, s) }
+func Warn(s string) string  { return paint(yellow, s) }
 
 // Status prefixes keep meaning without color (accessibility).
-func OK(msg string) string     { return Good("✓ OK") + "  " + msg }
-func Fail(msg string) string   { return Bad("✗ GAGAL") + "  " + msg }
+func OK(msg string) string      { return Good("✓ OK") + "  " + msg }
+func Fail(msg string) string    { return Bad("✗ GAGAL") + "  " + msg }
 func Caution(msg string) string { return Warn("! PERHATIAN") + "  " + msg }
 
 // Errf prints a line on stderr (never on stdout).
@@ -377,7 +377,7 @@ func renderTable(w io.Writer, data json.RawMessage) error {
 	table := make([][]string, 0, len(rows))
 	widths := make([]int, len(cols))
 	for i, c := range cols {
-		widths[i] = utf8.RuneCountInString(c)
+		widths[i] = utf8.RuneCountInString(label(c))
 	}
 	for _, r := range rows {
 		rec := make([]string, len(cols))
@@ -397,7 +397,7 @@ func renderTable(w io.Writer, data json.RawMessage) error {
 	}
 	head := make([]string, len(cols))
 	for i, c := range cols {
-		head[i] = pad(c, widths[i])
+		head[i] = pad(label(c), widths[i])
 	}
 	fmt.Fprintln(w, Info(strings.Join(head, "  ")))
 	for _, rec := range table {
@@ -408,6 +408,16 @@ func renderTable(w io.Writer, data json.RawMessage) error {
 		fmt.Fprintln(w, strings.TrimRight(strings.Join(parts, "  "), " "))
 	}
 	return nil
+}
+
+// label drops an ordering prefix ("1 perintah" → "perintah") from a column key.
+func label(c string) string {
+	if i := strings.IndexByte(c, ' '); i > 0 && i <= 2 {
+		if _, err := strconv.Atoi(c[:i]); err == nil {
+			return c[i+1:]
+		}
+	}
+	return c
 }
 
 func pad(s string, n int) string {

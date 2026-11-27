@@ -78,6 +78,14 @@ Gratis untuk member Prime aktif:
 | `ptb scripless --mode top` | Scripless |
 | `ptb watchlist` | Watchlist kamu |
 | `ptb extreme-results` | Kalender extreme results |
+| `ptb guide [fitur]` | Panduan fitur PTB (cara pakai, istilah, biaya token) |
+
+Khusus admin dan akun internal (dibatasi server):
+
+| Perintah | Isi |
+|---|---|
+| `ptb journal read summary --from … --to …` | Baca Jurnal trading (akun, transaksi, P&L, episode, analitik, catatan, playbook, review) |
+| `ptb journal write create-note --data '{…}'` | Ubah Jurnal; selalu minta konfirmasi (`--yes` untuk lewati), tidak mengirim order |
 
 Memotong token untuk **sesi hari ini** (sesi yang sudah selesai gratis, riwayat 180 hari):
 

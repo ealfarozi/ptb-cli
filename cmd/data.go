@@ -27,17 +27,17 @@ type flagSpec struct {
 // dataSpec is one data command. Paths and parameters mirror the PTB MCP
 // server (mcp/src/client.ts) so CLI and MCP read exactly the same data.
 type dataSpec struct {
-	Use     string   // e.g. "orderflow <SYMBOL>"
-	Parent  string   // "" = top level, else a group command name
+	Use     string // e.g. "orderflow <SYMBOL>"
+	Parent  string // "" = top level, else a group command name
 	Short   string
 	Long    string
 	Example string
-	Tool    string   // MCP tool name (for `ptb tools describe`)
+	Tool    string // MCP tool name (for `ptb tools describe`)
 	Path    func(args []string, q url.Values) string
-	NArgs   int      // required positional args
-	OptArgs int      // optional positional args
+	NArgs   int // required positional args
+	OptArgs int // optional positional args
 	Flags   []flagSpec
-	Paid    string   // quote tool id when the call may charge tokens
+	Paid    string // quote tool id when the call may charge tokens
 }
 
 func upper(s string) string { return strings.ToUpper(strings.TrimSpace(s)) }
@@ -146,16 +146,25 @@ var specs = []dataSpec{
 		Path: func(a []string, q url.Values) string { return "/broker-inventory/results" }},
 	{Use: "summary <SYMBOL>", Parent: "broker", Short: "Broker summary satu saham", Tool: "get_broker_summary", NArgs: 1,
 		Flags: []flagSpec{fromFlag, toFlag},
-		Path:  func(a []string, q url.Values) string { q.Set("symbol", upper(a[0])); return "/broker-inventory/summary" }},
+		Path: func(a []string, q url.Values) string {
+			q.Set("symbol", upper(a[0]))
+			return "/broker-inventory/summary"
+		}},
 	{Use: "net-position <SYMBOL>", Parent: "broker", Short: "Posisi bersih broker per hari", Tool: "get_broker_net_position", NArgs: 1,
 		Flags: []flagSpec{{Name: "from", Query: "startDate", Usage: "tanggal awal"}, {Name: "to", Query: "endDate", Usage: "tanggal akhir"}},
-		Path:  func(a []string, q url.Values) string { q.Set("symbol", upper(a[0])); return "/broker-inventory/timeseries" }},
+		Path: func(a []string, q url.Values) string {
+			q.Set("symbol", upper(a[0]))
+			return "/broker-inventory/timeseries"
+		}},
 	{Use: "inventory <SYMBOLS>", Parent: "broker", Short: "Inventory broker (kode dipisah koma)", Tool: "get_inventory_chart", NArgs: 1,
 		Flags: []flagSpec{fromFlag, toFlag, {Name: "brokers", Usage: "kode broker dipisah koma"}},
 		Path:  func(a []string, q url.Values) string { q.Set("symbols", upper(a[0])); return "/broker-inventory/chart" }},
 	{Use: "price <SYMBOL>", Parent: "broker", Short: "Harga harian untuk analisa broker", Tool: "get_price_chart", NArgs: 1,
 		Flags: []flagSpec{fromFlag, toFlag},
-		Path:  func(a []string, q url.Values) string { q.Set("symbol", upper(a[0])); return "/broker-inventory/price-chart" }},
+		Path: func(a []string, q url.Values) string {
+			q.Set("symbol", upper(a[0]))
+			return "/broker-inventory/price-chart"
+		}},
 	{Use: "foreign-list", Parent: "broker", Short: "Daftar broker asing", Tool: "get_foreign_brokers",
 		Path: func(a []string, q url.Values) string { return "/config/foreign-brokers" }},
 	{Use: "activity <BROKER>", Parent: "broker", Short: "Saham yang paling dibeli/dijual satu broker", Tool: "ptb_get_broker_activity", NArgs: 1,

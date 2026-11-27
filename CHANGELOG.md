@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.1.4 — 2026-11-27
+- `ptb guide [fitur]`: panduan Help Center sesuai akses akun (sama dengan tool MCP ptb_get_guide).
+- `ptb journal read|write`: Jurnal trading (khusus admin dan akun internal, dibatasi server).
+- Judul kolom tabel tanpa awalan angka.
+
 ## v0.1.3 — 2026-11-25
 - Distribusi WinGet: manifest `ealfarozi.ptb` diajukan otomatis ke microsoft/winget-pkgs.
 

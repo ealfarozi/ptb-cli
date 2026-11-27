@@ -10,14 +10,14 @@ import (
 // PTB MCP server (mcp/src/client.ts).
 func TestSpecPaths(t *testing.T) {
 	want := map[string]string{
-		"ptb_get_orderflow":        "/live/orderflow/BBCA",
-		"ptb_get_heatmap":          "/live/heatmap/BBCA",
-		"get_broker_summary":       "/broker-inventory/summary",
-		"get_broker_stalker":       "/broker-stalker/data",
-		"ptb_get_stock_profile":    "/stocks/BBCA",
+		"ptb_get_orderflow":         "/live/orderflow/BBCA",
+		"ptb_get_heatmap":           "/live/heatmap/BBCA",
+		"get_broker_summary":        "/broker-inventory/summary",
+		"get_broker_stalker":        "/broker-stalker/data",
+		"ptb_get_stock_profile":     "/stocks/BBCA",
 		"ptb_get_corporate_actions": "/corporate-action/symbol/BBCA",
-		"ptb_get_index_flow":       "/indices/BBCA/flow",
-		"ptb_get_scripless":        "/scripless/ticker/BBCA",
+		"ptb_get_index_flow":        "/indices/BBCA/flow",
+		"ptb_get_scripless":         "/scripless/ticker/BBCA",
 	}
 	seen := map[string]bool{}
 	for _, s := range specs {
